@@ -42,7 +42,7 @@ def detect_screen_state(image_path: str, debug: bool = False) -> ScreenState:
         return ScreenState.P6_REFRESH_CONFIRM
     
     # P2: Reveal clue confirmation popup
-    if "REVEAL CLUE" in text or ("YES" in text and "NO" in text and "CLUE" in text):
+    if "REVEAL CLUE" in text or ("YES" in text and "NO" in text and "REVEAL CLUE" in text):
         return ScreenState.P2_CONFIRM
     
     # P4: Swipe to reveal screen (has "SWIPE TO REVEAL" text)
@@ -54,7 +54,7 @@ def detect_screen_state(image_path: str, debug: bool = False) -> ScreenState:
         return ScreenState.P3_TILES
     
     # P5: Result card - unique attributes only appear here
-    p5_unique = ["TRADABILITY", "UNTRADABLE", "TRADABLE", "ANNIVERSARY", "PROGRAM"]
+    p5_unique = ["TRADABILITY", "UNTRADABLE", "TRADABLE", "ANNIVERSARY", "PROGRAM",]
     if any(attr in text for attr in p5_unique):
         # Make sure it's not P1 (which shows card preview)
         if "STAR SCOUT" not in text and "POSSIBLE REWARDS" not in text:

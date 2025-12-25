@@ -76,7 +76,7 @@ CHECK_X2 = 2112
 CHECK_Y2 = 796
 
 # Threshold for template matching (0..1). Increase for stricter matching.
-MATCH_THRESHOLD = 0.82
+MATCH_THRESHOLD = 0.49
 
 # ==================== DEBUG ====================
 DEBUG_MODE = True

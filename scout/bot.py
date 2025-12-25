@@ -60,50 +60,67 @@ def detect_with_retry(retries: int = 3) -> tuple[ScreenState, str]:
 
 
 def handle_p5(img_path: str) -> bool:
-    """Handle P5 result screen. Returns True if target found."""
+    """Handle P5 result screen. Returns True if a target is found."""
     time.sleep(OCR_DELAY)
     img_path = capture_screen()
 
     if not is_ovr_shown(img_path):
         print("  -> OVR not shown")
-        dismiss_and_refresh()
-        return False
+        return dismiss_and_check()  # Returns True if special asset found
 
     ovr = extract_ovr(img_path)
     if ovr is None:
         print("  -> Could not read OVR")
-        dismiss_and_refresh()
-        return False
+        return dismiss_and_check()
 
     print(f"  -> OVR: {ovr}")
 
     if TARGET_OVR_MIN <= ovr <= TARGET_OVR_MAX:
         print(f"\n{'='*40}")
-        print(f"  *** TARGET FOUND: {ovr} ***")
+        print(f"  *** TARGET OVR FOUND: {ovr} ***")
         print(f"{'='*40}\n")
         play_alert()
+        # Don't exit yet, let the user decide.
+        # We stop the bot but leave the final screen for manual action.
         return True
 
     print(f"  -> Not in range [{TARGET_OVR_MIN}-{TARGET_OVR_MAX}]")
-    dismiss_and_refresh()
-    return False
+    return dismiss_and_check()
 
 
-def dismiss_and_refresh():
-    """Dismiss card, check for special assets, and click refresh."""
-    print("  -> Dismiss & check")
+def dismiss_and_check() -> bool:
+    """
+    Dismiss card, check for special assets, and click refresh.
+    Returns True if a special asset is found, False otherwise.
+    """
+    print("  -> Dismiss & check for special assets")
     tap(*DISMISS_CLICK_POS)
     time.sleep(ACTION_DELAY)
 
+    # After dismissing, capture screen to check for special assets
+    img_path = capture_screen()
+    found_template = check_if_image_exists(img_path, TEMPLATE_PATHS)
+
+    if found_template:
+        print(f"\n{'='*40}")
+        print("  *** SPECIAL ASSET FOUND! ***")
+        print(f"{'='*40}\n")
+        play_alert()
+        return True  # Signal to stop the bot
+
+    # If no special asset, proceed with refresh
+    print("  -> No special assets were found, refreshing...")
     tap(*FREE_REFRESH_POS)
     time.sleep(ACTION_DELAY)
 
-    # Check for confirmation dialog
+    # Check for confirmation dialog for the refresh action
     img = capture_screen()
     if detect_screen_state(img) == ScreenState.P6_REFRESH_CONFIRM:
         print("  -> Confirm refresh")
         tap(*YES_BUTTON_POS)
         time.sleep(ACTION_DELAY)
+
+    return False
 
 
 def run():
@@ -158,10 +175,9 @@ def run():
 
             elif state == ScreenState.P5_RESULT:
                 if handle_p5(img_path):
-                    print("\n*** Target player found! Bot stopped. ***")
+                    print("\n*** Target Found! Bot stopped. ***")
                     print("You can manually accept or refresh the player.")
                     break
-
             elif state == ScreenState.P6_REFRESH_CONFIRM:
                 print("  -> Confirm refresh")
                 tap(*YES_BUTTON_POS)

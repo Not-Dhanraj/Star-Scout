@@ -55,15 +55,38 @@ def play_alert() -> None:
     print("[WARN] Could not play alert!")
 
 
+def load_templates(directory: Path) -> list[tuple[str, np.ndarray]]:
+    """
+    Load all image templates from the specified directory.
+    Returns a list of tuples: (template_name, template_image).
+    """
+    templates = []
+    if not directory.is_dir():
+        print(f"[WARN] Asset directory not found: {directory}")
+        return templates
+
+    valid_extensions = {".png", ".jpg", ".jpeg", ".bmp"}
+    for file_path in directory.iterdir():
+        if file_path.suffix.lower() in valid_extensions:
+            img = cv2.imread(str(file_path), cv2.IMREAD_COLOR)
+            if img is not None:
+                templates.append((file_path.stem, img))
+            else:
+                print(f"[WARN] Could not load template: {file_path}")
+    
+    print(f"[INFO] Loaded {len(templates)} templates from {directory}")
+    return templates
+
+
 def check_if_image_exists(
-    screenshot_path: str, template_paths: list[str], debug: bool = False
+    screenshot_path: str, templates: list[tuple[str, np.ndarray]], debug: bool = False
 ) -> bool:
     """
     Check if any of the template images exist in the specified region of the screenshot.
     This function performs template matching that is resilient to size variations.
     Args:
         screenshot_path: Path to the screenshot file.
-        template_paths: A list of paths to the template image files.
+        templates: A list of (name, image_data) tuples.
         debug: If True, save debug images and print confidence scores.
     Returns:
         True if a match is found, False otherwise.
@@ -71,6 +94,14 @@ def check_if_image_exists(
     main_image = cv2.imread(screenshot_path, cv2.IMREAD_COLOR)
     if main_image is None:
         print(f"[ERROR] Could not load screenshot: {screenshot_path}")
+        return False
+
+    h, w = main_image.shape[:2]
+    if debug:
+        print(f"  [DEBUG] Screenshot size: {w}x{h}")
+
+    if CHECK_X2 > w or CHECK_Y2 > h:
+        print(f"[WARN] Check region ({CHECK_X1},{CHECK_Y1},{CHECK_X2},{CHECK_Y2}) is out of bounds for image size {w}x{h}")
         return False
 
     if debug:
@@ -86,14 +117,9 @@ def check_if_image_exists(
     if debug:
         cv2.imwrite(str(DEBUG_SAVE_DIR / "region.png"), region_gray)
 
-    for template_path in template_paths:
-        template_color = cv2.imread(template_path, cv2.IMREAD_COLOR)
-        if template_color is None:
-            print(f"[WARN] Could not load template: {template_path}")
-            continue
+    for t_name, template_color in templates:
         template_gray = cv2.cvtColor(template_color, cv2.COLOR_BGR2GRAY)
 
-        t_name = Path(template_path).stem
         best_match_val = -1
 
         # Resize template to match the height of the region for a baseline
@@ -120,26 +146,27 @@ def check_if_image_exists(
             if max_val > best_match_val:
                 best_match_val = max_val
 
-            if debug:
-                # Save each scaled template for debugging
-                # cv2.imwrite(
-                #     str(DEBUG_SAVE_DIR / f"template_{t_name}_{i}.png"),
-                #     resized_template,
-                # )
-                if i == 0: # Draw rectangle on first pass
+            if max_val >= MATCH_THRESHOLD:
+                print(
+                    f"  [FOUND] Template '{t_name}' "
+                    f"with confidence: {max_val:.2f}"
+                )
+                if debug:
+                    # Draw rectangle and save match
                     dbg_region = region_color.copy()
                     cv2.rectangle(
                         dbg_region, max_loc, (max_loc[0] + w, max_loc[1] + h), (0, 0, 255), 2
                     )
-                    cv2.putText(dbg_region, f"{max_val:.2f}", (max_loc[0], max_loc[1] - 5), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0,0,255), 1)
+                    cv2.putText(
+                        dbg_region,
+                        f"{max_val:.2f}",
+                        (max_loc[0], max_loc[1] - 5),
+                        cv2.FONT_HERSHEY_SIMPLEX,
+                        0.5,
+                        (0, 0, 255),
+                        1,
+                    )
                     cv2.imwrite(str(DEBUG_SAVE_DIR / f"match_{t_name}.png"), dbg_region)
-
-
-            if max_val >= MATCH_THRESHOLD:
-                print(
-                    f"  [FOUND] Template '{Path(template_path).name}' "
-                    f"with confidence: {max_val:.2f}"
-                )
                 return True
 
         if debug:

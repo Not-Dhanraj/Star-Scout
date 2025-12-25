@@ -23,15 +23,13 @@ from .config import (
     DEBUG_MODE,
     DEBUG_SAVE_DIR,
 )
-from .utils import capture_screen, tap, play_alert, check_if_image_exists
+from .utils import capture_screen, tap, play_alert, check_if_image_exists, load_templates
 from .ocr import detect_screen_state, extract_ovr, is_ovr_shown
 
 # Define asset paths
 ASSET_DIR = Path(__file__).parent / "assets"
-TEMPLATE_PATHS = [
-    str(ASSET_DIR / "FF113.png"),
-    str(ASSET_DIR / "FFIconHero.png"),
-]
+# Dynamically load all templates from the assets directory
+TEMPLATES = load_templates(ASSET_DIR)
 
 
 def detect_with_retry(retries: int = 3) -> tuple[ScreenState, str]:
@@ -45,7 +43,7 @@ def detect_with_retry(retries: int = 3) -> tuple[ScreenState, str]:
 
         if i < retries - 1:
             print(f"  [RETRY {i+1}/{retries}]")
-            time.sleep(0.5)
+            time.sleep(0.75)
             img_path = capture_screen()
 
     # Save unknown for debug
@@ -95,11 +93,11 @@ def dismiss_and_check() -> bool:
     """
     print("  -> Dismiss & check for special assets")
     tap(*DISMISS_CLICK_POS)
-    time.sleep(ACTION_DELAY)
+    time.sleep(1)
 
     # After dismissing, capture screen to check for special assets
     img_path = capture_screen()
-    found_template = check_if_image_exists(img_path, TEMPLATE_PATHS)
+    found_template = check_if_image_exists(img_path, TEMPLATES)
 
     if found_template:
         print(f"\n{'='*40}")

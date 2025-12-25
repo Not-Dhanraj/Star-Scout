@@ -9,7 +9,7 @@ configured check region.
 
 import time
 from scout.utils import capture_screen, check_if_image_exists, check_adb_connection
-from scout.bot import TEMPLATE_PATHS
+from scout.bot import TEMPLATES
 from scout.config import CHECK_X1, CHECK_Y1, CHECK_X2, CHECK_Y2
 
 
@@ -29,10 +29,10 @@ def main():
     time.sleep(0.5)
 
     print("\n[2] Checking for special assets...")
-    print(f"    -> Templates: {[path.split('/')[-1] for path in TEMPLATE_PATHS]}")
+    print(f"    -> Templates: {[name for name, _ in TEMPLATES]}")
     print(f"    -> Region: (x1={CHECK_X1}, y1={CHECK_Y1}, x2={CHECK_X2}, y2={CHECK_Y2})")
 
-    found = check_if_image_exists(screenshot_path, TEMPLATE_PATHS, debug=True)
+    found = check_if_image_exists(screenshot_path, TEMPLATES, debug=True)
 
     print("\n[3] Result:")
     if found:

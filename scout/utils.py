@@ -4,8 +4,17 @@ ADB utilities for Scout Bot.
 
 import subprocess
 import time
-
-from .config import CLICK_DELAY, ALERT_SOUND
+import cv2
+import numpy as np
+from .config import (
+    CLICK_DELAY,
+    ALERT_SOUND,
+    CHECK_X1,
+    CHECK_X2,
+    CHECK_Y1,
+    CHECK_Y2,
+    MATCH_THRESHOLD,
+)
 
 
 def run_cmd(cmd: str, capture: bool = True) -> str:
@@ -35,7 +44,7 @@ def play_alert() -> None:
     if not ALERT_SOUND.exists():
         print(f"[WARN] Alert not found: {ALERT_SOUND}")
         return
-    
+
     for player in ["paplay", "aplay", "mpv --no-video", "ffplay -nodisp -autoexit"]:
         try:
             run_cmd(f"{player} {ALERT_SOUND} &", capture=False)
@@ -48,9 +57,9 @@ def play_alert() -> None:
 def check_adb_connection() -> bool:
     """Check ADB connection."""
     result = run_cmd("adb devices")
-    lines = result.strip().split('\n')
-    devices = [line for line in lines[1:] if line.strip() and 'device' in line]
-    
+    lines = result.strip().split("\n")
+    devices = [line for line in lines[1:] if line.strip() and "device" in line]
+
     if devices:
         print(f"[OK] ADB: {devices[0].split()[0]}")
         return True

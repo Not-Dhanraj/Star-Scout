@@ -33,7 +33,7 @@ check_python() {
         print_msg "Please install Python 3.7 or higher." "$YELLOW"
         exit 1
     fi
-    
+
     PYTHON_VERSION=$(python3 --version 2>&1 | awk '{print $2}')
     print_msg "✓ Python $PYTHON_VERSION found" "$GREEN"
 }
@@ -49,7 +49,7 @@ check_adb() {
         print_msg "  macOS: brew install android-platform-tools" "$YELLOW"
         exit 1
     fi
-    
+
     ADB_VERSION=$(adb --version | head -n 1)
     print_msg "✓ $ADB_VERSION found" "$GREEN"
 }
@@ -65,7 +65,7 @@ check_tesseract() {
         print_msg "  macOS: brew install tesseract" "$YELLOW"
         exit 1
     fi
-    
+
     TESSERACT_VERSION=$(tesseract --version 2>&1 | head -n 1)
     print_msg "✓ $TESSERACT_VERSION found" "$GREEN"
 }
@@ -76,7 +76,7 @@ setup_venv() {
         print_msg "Creating virtual environment..." "$YELLOW"
         python3 -m venv .venv
     fi
-    
+
     print_msg "✓ Virtual environment ready" "$GREEN"
 }
 
@@ -94,7 +94,7 @@ activate_venv() {
 # Check if Python dependencies are installed
 check_dependencies() {
     print_msg "Checking Python dependencies..." "$BLUE"
-    
+
     if ! python -c "import cv2" &> /dev/null; then
         print_msg "Installing missing dependencies..." "$YELLOW"
         pip install -r requirements.txt
@@ -106,9 +106,9 @@ check_dependencies() {
 # Check ADB connection
 check_adb_device() {
     print_msg "Checking ADB device connection..." "$BLUE"
-    
+
     DEVICES=$(adb devices | tail -n +2 | grep -v "^$" | wc -l)
-    
+
     if [ "$DEVICES" -eq 0 ]; then
         print_msg "ERROR: No ADB device connected!" "$RED"
         print_msg "" "$NC"
@@ -124,7 +124,7 @@ check_adb_device() {
         print_msg "  adb connect <device-ip>:5555" "$YELLOW"
         exit 1
     fi
-    
+
     DEVICE_NAME=$(adb devices | tail -n +2 | head -n 1 | awk '{print $1}')
     print_msg "✓ Device connected: $DEVICE_NAME" "$GREEN"
 }
@@ -132,7 +132,7 @@ check_adb_device() {
 # Main script
 main() {
     print_header
-    
+
     # Run checks
     check_python
     check_adb
@@ -141,13 +141,13 @@ main() {
     activate_venv
     check_dependencies
     check_adb_device
-    
+
     echo ""
     print_msg "All checks passed! Starting bot..." "$GREEN"
     echo ""
     echo "=========================================="
     echo ""
-    
+
     # Start the bot
     python -m scout
 }

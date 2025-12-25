@@ -1,7 +1,7 @@
 # Star Scout Bot
 
 An automated bot for FC Mobile's Star Scout feature that helps you find players within a specific OVR (Overall Rating) range.
-### PS: I havent got a 114-115 personally so idk if the script stops as intended..
+### PS: “I haven’t personally gotten a 114-115 OVR, so idk if the script stops as intended.....
 
 ## Features
 

@@ -12,9 +12,17 @@ import pytesseract
 from .config import ScreenState
 
 
-def get_text(image_path: str) -> str:
-    """Extract text from screenshot - optimized for speed."""
-    img = cv2.imread(image_path)
+def get_text(image: str | np.ndarray) -> str:
+    """
+    Extract text from screenshot - optimized for speed.
+    Args:
+        image: File path (str) or loaded OpenCV image (np.ndarray).
+    """
+    if isinstance(image, str):
+        img = cv2.imread(image)
+    else:
+        img = image
+
     if img is None:
         return ""
 
@@ -34,9 +42,9 @@ def get_text(image_path: str) -> str:
     return text
 
 
-def detect_screen_state(image_path: str, debug: bool = False) -> ScreenState:
+def detect_screen_state(image: str | np.ndarray, debug: bool = False) -> ScreenState:
     """Detect current screen state from OCR text."""
-    text = get_text(image_path)
+    text = get_text(image)
 
     if debug:
         print(f"[OCR] {text[:600]}...")
@@ -98,9 +106,13 @@ def detect_screen_state(image_path: str, debug: bool = False) -> ScreenState:
     return ScreenState.UNKNOWN
 
 
-def extract_ovr(image_path: str) -> int | None:
+def extract_ovr(image: str | np.ndarray) -> int | None:
     """Extract OVR number from result screen."""
-    img = cv2.imread(image_path)
+    if isinstance(image, str):
+        img = cv2.imread(image)
+    else:
+        img = image
+
     if img is None:
         return None
 
@@ -132,7 +144,7 @@ def extract_ovr(image_path: str) -> int | None:
     return None
 
 
-def is_ovr_shown(image_path: str) -> bool:
+def is_ovr_shown(image: str | np.ndarray) -> bool:
     """Check if OVR attribute is shown."""
-    text = get_text(image_path)
+    text = get_text(image)
     return any(p in text for p in ["OVR", "OOVR", "0VR", "OVVR"])

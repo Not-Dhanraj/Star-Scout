@@ -5,6 +5,7 @@ Bot logic for Scout.
 import time
 import random
 import shutil
+import cv2
 from datetime import datetime
 from pathlib import Path
 
@@ -61,12 +62,18 @@ def handle_p5(img_path: str) -> bool:
     """Handle P5 result screen. Returns True if a target is found."""
     time.sleep(OCR_DELAY)
     img_path = capture_screen()
+    
+    # Load image once to avoid repeated file I/O
+    img = cv2.imread(img_path)
+    if img is None:
+        print(f"  [ERROR] Could not load screenshot: {img_path}")
+        return dismiss_and_check()
 
-    if not is_ovr_shown(img_path):
+    if not is_ovr_shown(img):
         print("  -> OVR not shown")
         return dismiss_and_check()  # Returns True if special asset found
 
-    ovr = extract_ovr(img_path)
+    ovr = extract_ovr(img)
     if ovr is None:
         print("  -> Could not read OVR")
         return dismiss_and_check()

@@ -79,13 +79,13 @@ def load_templates(directory: Path) -> list[tuple[str, np.ndarray]]:
 
 
 def check_if_image_exists(
-    screenshot_path: str, templates: list[tuple[str, np.ndarray]], debug: bool = False
+    screenshot: str | np.ndarray, templates: list[tuple[str, np.ndarray]], debug: bool = False
 ) -> tuple[bool, float]:
     """
     Check if any of the template images exist in the specified region of the screenshot.
     This function performs template matching that is resilient to size variations.
     Args:
-        screenshot_path: Path to the screenshot file.
+        screenshot: Path to the screenshot file or loaded OpenCV image.
         templates: A list of (name, image_data) tuples.
         debug: If True, save debug images and print confidence scores.
     Returns:
@@ -93,9 +93,15 @@ def check_if_image_exists(
             found: True if a match is found, False otherwise.
             max_confidence: The highest confidence score found (0.0 to 1.0).
     """
-    main_image = cv2.imread(screenshot_path, cv2.IMREAD_COLOR)
+    if isinstance(screenshot, str):
+        main_image = cv2.imread(screenshot, cv2.IMREAD_COLOR)
+        img_name = screenshot
+    else:
+        main_image = screenshot
+        img_name = "memory_image"
+
     if main_image is None:
-        print(f"[ERROR] Could not load screenshot: {screenshot_path}")
+        print(f"[ERROR] Could not load screenshot: {img_name}")
         return False, 0.0
 
     h, w = main_image.shape[:2]

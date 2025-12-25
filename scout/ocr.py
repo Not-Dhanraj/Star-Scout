@@ -13,21 +13,26 @@ from .config import ScreenState
 
 
 def get_text(image_path: str) -> str:
-    """Extract text from screenshot using grayscale + pytesseract."""
+    """Extract text from screenshot - optimized for speed."""
     img = cv2.imread(image_path)
     if img is None:
         return ""
     
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    pil_gray = Image.fromarray(gray)
     
-    # PSM 6 (block) and PSM 11 (sparse) work best for game UI
-    texts = []
-    for psm in [6, 11]:
-        text = pytesseract.image_to_string(pil_gray, config=f'--psm {psm}').upper()
-        texts.append(text)
+    # Simple threshold - much faster than adaptive
+    _, thresh = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
     
-    return " ".join(texts)
+    pil_image = Image.fromarray(thresh)
+    
+    # Single PSM pass - choose the one that works best for your game
+    # PSM 6 is usually fastest for game UI
+    text = pytesseract.image_to_string(
+        pil_image,
+        config='--psm 6 --oem 1'  # OEM 1 (LSTM only) is faster than 3
+    ).upper()
+    
+    return text
 
 
 def detect_screen_state(image_path: str, debug: bool = False) -> ScreenState:

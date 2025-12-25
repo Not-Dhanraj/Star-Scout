@@ -80,7 +80,7 @@ def load_templates(directory: Path) -> list[tuple[str, np.ndarray]]:
 
 def check_if_image_exists(
     screenshot_path: str, templates: list[tuple[str, np.ndarray]], debug: bool = False
-) -> bool:
+) -> tuple[bool, float]:
     """
     Check if any of the template images exist in the specified region of the screenshot.
     This function performs template matching that is resilient to size variations.
@@ -89,12 +89,14 @@ def check_if_image_exists(
         templates: A list of (name, image_data) tuples.
         debug: If True, save debug images and print confidence scores.
     Returns:
-        True if a match is found, False otherwise.
+        (found, max_confidence):
+            found: True if a match is found, False otherwise.
+            max_confidence: The highest confidence score found (0.0 to 1.0).
     """
     main_image = cv2.imread(screenshot_path, cv2.IMREAD_COLOR)
     if main_image is None:
         print(f"[ERROR] Could not load screenshot: {screenshot_path}")
-        return False
+        return False, 0.0
 
     h, w = main_image.shape[:2]
     if debug:
@@ -102,7 +104,7 @@ def check_if_image_exists(
 
     if CHECK_X2 > w or CHECK_Y2 > h:
         print(f"[WARN] Check region ({CHECK_X1},{CHECK_Y1},{CHECK_X2},{CHECK_Y2}) is out of bounds for image size {w}x{h}")
-        return False
+        return False, 0.0
 
     if debug:
         from .config import DEBUG_SAVE_DIR
@@ -116,6 +118,8 @@ def check_if_image_exists(
 
     if debug:
         cv2.imwrite(str(DEBUG_SAVE_DIR / "region.png"), region_gray)
+
+    global_max_val = 0.0
 
     for t_name, template_color in templates:
         template_gray = cv2.cvtColor(template_color, cv2.COLOR_BGR2GRAY)
@@ -167,12 +171,15 @@ def check_if_image_exists(
                         1,
                     )
                     cv2.imwrite(str(DEBUG_SAVE_DIR / f"match_{t_name}.png"), dbg_region)
-                return True
+                return True, max_val
+        
+        if best_match_val > global_max_val:
+            global_max_val = best_match_val
 
         if debug:
             print(f"  [DEBUG] Best match for '{t_name}': {best_match_val:.2f}")
 
-    return False
+    return False, global_max_val
 
 
 def check_adb_connection() -> bool:

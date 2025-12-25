@@ -43,7 +43,7 @@ def detect_with_retry(retries: int = 3) -> tuple[ScreenState, str]:
 
         if i < retries - 1:
             print(f"  [RETRY {i+1}/{retries}]")
-            time.sleep(0.75)
+            time.sleep(1)
             img_path = capture_screen()
 
     # Save unknown for debug
@@ -97,17 +97,17 @@ def dismiss_and_check() -> bool:
 
     # After dismissing, capture screen to check for special assets
     img_path = capture_screen()
-    found_template = check_if_image_exists(img_path, TEMPLATES)
+    found_template, confidence = check_if_image_exists(img_path, TEMPLATES)
 
     if found_template:
         print(f"\n{'='*40}")
-        print("  *** SPECIAL ASSET FOUND! ***")
+        print(f"  *** SPECIAL ASSET FOUND! (Conf: {confidence:.2f}) ***")
         print(f"{'='*40}\n")
         play_alert()
         return True  # Signal to stop the bot
 
     # If no special asset, proceed with refresh
-    print("  -> No special assets were found, refreshing...")
+    print(f"  -> No special assets found (Max Conf: {confidence:.2f}), refreshing...")
     tap(*FREE_REFRESH_POS)
     time.sleep(ACTION_DELAY)
 

@@ -100,7 +100,8 @@ def dismiss_and_check() -> bool:
     """
     print("  -> Dismiss & check for special assets")
     tap(*DISMISS_CLICK_POS)
-    time.sleep(1)
+    time.sleep(1.25)
+    print("  -> Checking now")
 
     # After dismissing, capture screen to check for special assets
     img_path = capture_screen()

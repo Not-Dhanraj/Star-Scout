@@ -68,13 +68,13 @@ FREE_REFRESH_POS = (1940, 1035)
 DISMISS_CLICK_POS = (200, 540)
 
 # ==================== CHECK REGION ====================
-# Region (x1, y1, x2, y2) to restrict image presence checks to a subarea
+# Region (x1, y1, x2, y2) to restrict image presence checks to a subarea. (THIS IS THE AREA OF CARD ON THE RIGHT SIDE OF THE SCREEN)
 # Only pixels inside this rectangle will be searched for the template images.
 # Modify these values to fit the cropped region you want to check in P5.
-CHECK_X1 = 1787
-CHECK_Y1 = 445
-CHECK_X2 = 2112
-CHECK_Y2 = 796
+CHECK_X1 = 1787  # UPPER LEFT AREA X (FOR CARD ON THE RIGHT OF SCOUT SCREEN)
+CHECK_Y1 = 445  # UPPER LEFT AREA Y
+CHECK_X2 = 2112 # LOWER RIGHT AREA X
+CHECK_Y2 = 796  # LOWER RIGHT AREA Y
 
 # Threshold for template matching (0..1). Increase for stricter matching.
 MATCH_THRESHOLD = 0.49

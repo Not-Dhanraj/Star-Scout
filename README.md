@@ -82,9 +82,9 @@ cd Star-Scout
 
 2. **Create and activate a virtual environment:**
 ```bash
-python3 -m venv venv
-source venv/bin/activate  # On Linux/macOS
-# Or on Windows: venv\Scripts\activate
+python3 -m venv .venv
+source .venv/bin/activate  # On Linux/macOS
+# Or on Windows: .venv\Scripts\activate
 ```
 
 3. **Install Python dependencies:**
@@ -94,9 +94,9 @@ pip install -r requirements.txt
 
 **Note:** Always activate the virtual environment before running the bot:
 ```bash
-source venv/bin/activate  # Linux/macOS
+source .venv/bin/activate  # Linux/macOS
 # or
-venv\Scripts\activate     # Windows
+.venv\Scripts\activate     # Windows
 ```
 
 ## Setup
@@ -201,6 +201,34 @@ TILE_POSITIONS = [
 ```
 
 **Important:** Coordinates are device-specific and depend on your screen resolution. Make sure to determine coordinates for YOUR device!
+
+### 5. Special Asset Detection (Card Backgrounds)
+
+The bot can detect specific card types (e.g., Icons, special events) based on their visual appearance. It specifically checks the "Result" screen (P5) to see if a special card background appears on the right side.
+
+**How it works:**
+1. The bot loads all images found in the `scout/assets/` folder.
+2. It searches for these images *only* within the region defined by the `CHECK_` coordinates in `config.py` (default: right side of the screen where the card appears).
+3. If a match is found with a confidence score higher than `MATCH_THRESHOLD`, the bot stops and plays an alert, assuming a special player has been found.
+
+**Tuning the Threshold:**
+If the bot is missing your special cards (false negatives) or stopping for wrong cards (false positives), you need to adjust `MATCH_THRESHOLD` in `scout/config.py`.
+
+1. **Run the test script:**
+   Connect your device, open the game to the screen showing the card you want to test, and run:
+   ```bash
+   python test_thresh.py
+   ```
+2. **Analyze the output:**
+   The script will capture the screen and check against your assets, printing the confidence score:
+   ```
+   [FOUND] Template 'MyNewAsset' with confidence: 0.72
+   ```
+3. **Update Config:**
+   - **Target Value:** Set `MATCH_THRESHOLD` to be slightly lower than the confidence score you see for a correct match.
+     - *Example:* If your asset matches with `0.72`, set the threshold to `0.65`.
+   - **Too Strict:** If the bot doesn't stop for the card, **decrease** the threshold.
+   - **Too Loose:** If the bot stops for normal cards, **increase** the threshold.
 
 ## Usage
 

@@ -5,6 +5,7 @@ All coordinates are direct ADB tap coordinates - no conversion needed.
 
 from pathlib import Path
 from enum import Enum, auto
+import tempfile
 
 
 class ScreenState(Enum):
@@ -80,4 +81,4 @@ MATCH_THRESHOLD = 0.49
 
 # ==================== DEBUG ====================
 DEBUG_MODE = True
-DEBUG_SAVE_DIR = Path("/tmp/scout_debug")
+DEBUG_SAVE_DIR = Path(tempfile.gettempdir()) / "scout_debug"

@@ -44,6 +44,9 @@ sudo pacman -S android-tools
 brew install android-platform-tools
 ```
 
+**Windows:**
+Download the SDK Platform-Tools for Windows from [developer.android.com](https://developer.android.com/tools/releases/platform-tools) and extract it to a folder. Add that folder to your system PATH environment variable.
+
 #### Tesseract OCR Installation
 
 **Ubuntu/Debian:**
@@ -65,6 +68,9 @@ sudo pacman -S tesseract
 ```bash
 brew install tesseract
 ```
+
+**Windows:**
+Download the installer from [UB-Mannheim/tesseract](https://github.com/UB-Mannheim/tesseract/wiki). Run the installer and ensure the installation directory is added to your system PATH environment variable.
 
 ## Installation
 
@@ -88,7 +94,9 @@ pip install -r requirements.txt
 
 **Note:** Always activate the virtual environment before running the bot:
 ```bash
-source venv/bin/activate
+source venv/bin/activate  # Linux/macOS
+# or
+venv\Scripts\activate     # Windows
 ```
 
 ## Setup
@@ -198,16 +206,24 @@ TILE_POSITIONS = [
 
 ### Quick Start
 
-Use the provided bash script (automatically handles venv):
+**Linux/macOS:**
 ```bash
 ./start.sh
+```
+
+**Windows:**
+Double-click `start.bat` or run in terminal:
+```cmd
+start.bat
 ```
 
 ### Manual Commands
 
 **Activate virtual environment first:**
 ```bash
-source venv/bin/activate
+source .venv/bin/activate  # Linux/macOS
+# or
+.venv\Scripts\activate     # Windows
 ```
 
 **Run the bot:**

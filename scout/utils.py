@@ -7,6 +7,7 @@ import subprocess
 import time
 import cv2
 import numpy as np
+import platform
 from .config import (
     CLICK_DELAY,
     ALERT_SOUND,
@@ -27,9 +28,13 @@ def run_cmd(cmd: str, capture: bool = True) -> str:
     return ""
 
 
-def capture_screen(path: str = "/tmp/screen.png") -> str:
+def capture_screen(path: str = "screen.png") -> str:
     """Capture screen via ADB."""
-    run_cmd(f"adb exec-out screencap -p > {path}", capture=False)
+    # Use current directory or temp directory if path is just a filename
+    if not Path(path).is_absolute():
+        path = str(Path(path).resolve())
+        
+    run_cmd(f"adb exec-out screencap -p > \"{path}\"", capture=False)
     time.sleep(0.2)
     return path
 
@@ -46,9 +51,17 @@ def play_alert() -> None:
         print(f"[WARN] Alert not found: {ALERT_SOUND}")
         return
 
-    for player in ["paplay", "aplay", "mpv --no-video", "ffplay -nodisp -autoexit"]:
+    if platform.system() == "Windows":
         try:
-            run_cmd(f"{player} {ALERT_SOUND} &", capture=False)
+            import winsound
+            winsound.PlaySound(str(ALERT_SOUND), winsound.SND_FILENAME | winsound.SND_ASYNC)
+            return
+        except Exception:
+            pass
+
+    for player in ["paplay", "aplay", "mpv --no-video", "ffplay -nodisp -autoexit", "afplay"]:
+        try:
+            run_cmd(f"{player} \"{ALERT_SOUND}\" &", capture=False)
             return
         except Exception:
             continue

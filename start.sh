@@ -149,7 +149,7 @@ main() {
     echo ""
 
     # Start the bot
-    python -m scout
+    echo y | python -m scout
 }
 
 # Run main function

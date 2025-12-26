@@ -96,6 +96,6 @@ echo All checks passed! Starting bot...
 echo ==========================================
 echo.
 
-python -m scout
+echo y | python -m scout
 
 pause

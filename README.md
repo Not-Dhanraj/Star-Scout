@@ -1,7 +1,7 @@
 # Star Scout Bot
 
 An automated bot for FC Mobile's Star Scout feature that helps you find players within a specific OVR (Overall Rating) range.
-### PS: “I haven’t personally gotten a 114-115 OVR, so idk if the script stops as intended.....
+### PS: "I haven't personally gotten a 114-115 OVR, so idk if the script stops as intended.....
 
 ## Features
 
@@ -76,7 +76,7 @@ Download the installer from [UB-Mannheim/tesseract](https://github.com/UB-Mannhe
 
 1. **Clone the repository:**
 ```bash
-git clone https://github.com/yourusername/Star-Scout.git
+git clone https://github.com/Not-Dhanraj/Star-Scout.git
 cd Star-Scout
 ```
 
